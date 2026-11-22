@@ -1,0 +1,4 @@
+[row=1] 指标,含义
+[row=2] 主分 score,对应 valid_accuracy 或 final_rate_valid。先剔除复读、思考标签未闭合等无效回答，再按任务规则评分
+[row=3] 全量分,无效回答计 0，保留在分母中。对应 total_accuracy 或 final_rate_total
+[row=4] 辅助分 acc,部分任务提供的部分重合或加权接近度指标，用于衡量部分答对的情况

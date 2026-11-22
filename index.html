@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>alpha_star_law_8B_v2 · 中国电子云法律大模型评测报告</title>
+<meta name="description" content="中国电子云自研法律大模型 alpha_star_law_8B_v2 在 LawBench 与 LexEval 两套中文法律评测集上的表现：双榜第一，8 个能力维度全部领先，35 项任务中 27 项取得最高分。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="alpha_star_law_8B_v2 · 中国电子云法律大模型评测报告">
+<meta property="og:description" content="LawBench 55.39 / LexEval 73.82，双榜第一。8 个能力维度全部领先，35 项任务中 27 项取得最高分。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%231f5fd0'/><text x='16' y='22' font-size='16' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>L</text></svg>">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap nav-inner">
+    <a class="nav-brand" href="#top"><span class="nav-mark"></span> alpha_star_law_8B_v2</a>
+    <div class="nav-links">
+      <a href="#conclusion">评测结论</a>
+      <a href="#scope">评测范围</a>
+      <a href="#models">模型配置</a>
+      <a href="#benchmarks">总分对比</a>
+      <a href="#dimensions">能力维度</a>
+      <a href="#tasks">任务明细</a>
+      <a href="#stability">稳定性与错误</a>
+      <a href="#notes">说明与边界</a>
+    </div>
+    <a class="nav-cta" href="https://github.com/CESTC-REAL" target="_blank" rel="noopener">GitHub 组织</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow"><span class="dot"></span> CESTC-REAL · 法律大模型评测</span>
+      <h1>alpha_star_law_<span class="v">8B</span>_v2</h1>
+      <p class="hero-sub">
+        中国电子云自研法律大模型在 <strong>LawBench</strong> 与 <strong>LexEval</strong> 两套中文法律评测集上的
+        表现报告。统一关闭思考模式后双榜总分均为第一，覆盖 <strong>8 个能力维度</strong>、共 <strong>35 项任务</strong>、
+        <strong>19,392 道</strong>题目。
+      </p>
+      <div class="chips" id="hero-chips"></div>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#conclusion">查看评测结论</a>
+        <a class="btn btn-ghost" href="#tasks">任务级明细</a>
+        <a class="btn btn-ghost" href="#notes">口径与边界</a>
+      </div>
+    </div>
+
+    <aside class="score-panel">
+      <div class="score-panel-head">
+        <span class="t">两榜总分</span>
+        <span class="score-rank">均列第一</span>
+      </div>
+      <div id="score-rows"></div>
+    </aside>
+  </div>
+</header>
+
+<main>
+
+  <!-- 01 评测结论 -->
+  <section class="section" id="conclusion">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-index">01 / CONCLUSION</div>
+        <h2>评测结论</h2>
+        <p>在四个模型统一关闭思考模式的条件下，与通用基座及两款开源法律模型横向对比的结果。</p>
+      </div>
+      <div class="conclusion" id="conclusion-body"></div>
+      <div class="kpi-grid" id="kpi-grid"></div>
+    </div>
+  </section>
+
+  <!-- 02 评测范围与评分口径 -->
+  <section class="section section-alt" id="scope">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-index">02 / SCOPE &amp; METRICS</div>
+        <h2>评测范围与评分口径</h2>
+        <p>数据集构成、三种评分指标的定义，以及本次评测统一的推理设置。</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th style="width:16%">数据集</th><th style="width:12%">任务数</th><th style="width:12%">题量</th><th>覆盖范围</th></tr></thead>
+          <tbody id="datasets-body"></tbody>
+        </table>
+      </div>
+
+      <h3 class="sub-head">三种评分口径</h3>
+      <div class="metric-grid" id="metrics-body"></div>
+
+      <h3 class="sub-head">统一推理设置</h3>
+      <div class="param-panel">
+        <p class="param-desc" id="inference-mode"></p>
+        <div class="param-chips" id="inference-params"></div>
+        <div class="note-inline" id="inference-note"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 模型与权重配置 -->
+  <section class="section" id="models">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-index">03 / MODELS &amp; WEIGHTS</div>
+        <h2>模型与权重配置</h2>
+        <p>四个参评模型均属 Qwen3-8B 架构家族：36 层 Decoder-only Transformer、hidden_size 4096、intermediate_size 12288、GQA 32Q/8KV、head_dim 128、rope_theta 1e6、原生位置上限 40,960、BF16 权重。</p>
+      </div>
+
+      <div class="model-grid" id="models-body"></div>
+
+      <h3 class="sub-head">权重与配置文件对照</h3>
+      <div class="table-wrap">
+        <table class="weights-table">
+          <thead><tr id="weights-head"></tr></thead>
+          <tbody id="weights-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 总分对比 -->
+  <section class="section section-alt" id="benchmarks">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-index">04 / SCOREBOARD</div>
+        <h2>总分对比</h2>
+        <p>两套评测集与两榜等权平均的总分表现。条形长度按满分 100 等比缩放，便于跨榜比较。</p>
+      </div>
+      <div class="chart-grid-3" id="benchmark-charts"></div>
+
+      <h3 class="sub-head">全量分口径对照</h3>
+      <div class="table-wrap">
+        <table class="table-compact">
+          <thead><tr id="full-score-head"></tr></thead>
+          <tbody id="full-score-body"></tbody>
+        </table>
+      </div>
+      <div class="callout" id="full-score-note"></div>
+    </div>
+  </section>
+
+  <!-- 05 能力维度 -->
+  <section class="section" id="dimensions">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-index">05 / CAPABILITY DIMENSIONS</div>
+        <h2>能力维度</h2>
+        <p>本次评测覆盖的 8 个能力维度，自研模型在全部维度上均排名第一，较基座提升 6.48 至 22.63 分。</p>
+      </div>
+      <div class="chart-grid chart-grid-wide">
+        <div class="chart-card">
+          <div class="chart-title">八维度雷达对比</div>
+          <div class="chart-sub">自研模型 vs Qwen3-8B 基座（LB = LawBench，LE = LexEval；分数越高越好）</div>
+          <div class="radar-wrap">
+            <div id="radar"></div>
+            <div class="radar-legend">
+              <span class="legend-item"><span class="legend-swatch" style="background:var(--brand)"></span>alpha_star_law_8B_v2</span>
+              <span class="legend-item"><span class="legend-swatch" style="background:var(--base)"></span>Qwen3-8B（基座）</span>
+            </div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">维度明细</div>
+          <div class="chart-sub">各维度得分与相对基座的领先幅度</div>
+          <div class="table-wrap table-wrap-flat">
+            <table>
+              <thead><tr><th>维度</th><th class="num">自研</th><th class="num">基座</th><th class="num">较基座</th></tr></thead>
+              <tbody id="dim-body"></tbody>
+            </table>
+          </div>
+          <div class="note-inline" id="dimension-note"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 任务级明细 -->
+  <section class="section section-alt" id="tasks">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-index">06 / TASK-LEVEL RESULTS</div>
+        <h2>任务级明细</h2>
+        <p>两套评测集共 35 项任务的逐项得分，★ 标记该任务的最高分归属。</p>
+      </div>
+      <div id="task-tables"></div>
+      <div class="callout" id="verify-note"></div>
+    </div>
+  </section>
+
+  <!-- 07 稳定性与典型错误 -->
+  <section class="section" id="stability">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-index">07 / STABILITY &amp; ERRORS</div>
+        <h2>输出稳定性与典型错误</h2>
+        <p>关闭思考模式下的无效回答统计，以及各任务上的代表性错误案例。</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th style="width:20%">模型</th><th style="width:22%">LawBench 无效回答</th><th style="width:22%">LexEval 无效回答</th><th>主要异常</th></tr></thead>
+          <tbody id="invalid-body"></tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-plain" id="invalid-note"></div>
+
+      <h3 class="sub-head">平均输出长度对比</h3>
+      <div class="table-wrap">
+        <table class="table-compact">
+          <thead><tr id="len-head"></tr></thead>
+          <tbody id="len-body"></tbody>
+        </table>
+      </div>
+      <div class="note-inline" id="length-note"></div>
+
+      <div class="error-grid">
+        <div class="chart-card">
+          <div class="chart-title" id="err1-title"></div>
+          <div class="chart-sub">条号与条文错配的代表性案例</div>
+          <div class="table-wrap table-wrap-flat"><table><thead id="err1-head"></thead><tbody id="err1-body"></tbody></table></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title" id="err2-title"></div>
+          <div class="chart-sub">要素抽取遗漏的代表性案例</div>
+          <div class="table-wrap table-wrap-flat"><table><thead id="err2-head"></thead><tbody id="err2-body"></tbody></table></div>
+        </div>
+      </div>
+
+      <h3 class="sub-head" id="err3-title"></h3>
+      <div class="table-wrap">
+        <table><thead id="err3-head"></thead><tbody id="err3-body"></tbody></table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 亮点与短板 -->
+  <section class="section section-alt" id="strengths">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-index">08 / STRENGTHS &amp; GAPS</div>
+        <h2>亮点与短板</h2>
+        <p>从逐项结果中归纳的优势项与仍需改进的任务。</p>
+      </div>
+      <div class="two-col">
+        <div>
+          <h3 class="col-title col-title-win">优势项</h3>
+          <div class="bullet-list" id="strengths-body"></div>
+        </div>
+        <div>
+          <h3 class="col-title col-title-gap">待改进</h3>
+          <div class="bullet-list" id="shortfalls-body"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 说明与边界 -->
+  <section class="section" id="notes">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-index">09 / NOTES &amp; LIMITS</div>
+        <h2>说明与边界</h2>
+        <p>数据口径、计算方式，以及阅读本报告时需要注意的边界。</p>
+      </div>
+      <div class="note-list" id="note-list"></div>
+      <dl class="meta-grid" id="meta-grid"></dl>
+      <div class="callout" id="callout"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-grid">
+    <div>
+      <div class="footer-brand"><span class="nav-mark"></span> CESTC-REAL</div>
+      <p class="footer-note" id="footer-note"></p>
+    </div>
+    <div class="footer-meta">
+      <div>数据来源：飞书云文档《alpha_star_law_8B_v2测试报告》</div>
+      <div id="footer-date"></div>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/report.js"></script>
+<script src="assets/render.js"></script>
+</body>
+</html>

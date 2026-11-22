@@ -1,0 +1,4 @@
+[row=1] 数据集,alpha_star_law_8B_v2,LegalOne-8B,qwen3_for_law,Qwen3-8B 基座
+[row=2] LawBench,55.39,44.47,43.97,44.37
+[row=3] LexEval,73.82,56.48,58.94,59.09
+[row=4] 两榜等权平均,64.61,50.48,51.46,51.73

@@ -1,0 +1,3 @@
+[row=1] 数据集全量分,V6,LegalOne-8B,qwen3_for_law,Qwen3-8B 基座
+[row=2] LawBench,55.23,38.05,43.94,44.3
+[row=3] LexEval,73.82,56.44,58.94,59.09
