@@ -80,37 +80,49 @@
 <!-- ===================== 浮动侧边导航 ===================== -->
 <aside class="rail" aria-label="章节导航">
   <nav class="rail-nav">
-    <a href="#scorecard" title="核心成绩"><svg class="ic"><use href="#i-trophy"/></svg><span class="rail-label">核心成绩</span></a>
-    <a href="#leaderboard" title="两榜总分"><svg class="ic"><use href="#i-columns"/></svg><span class="rail-label">两榜总分</span></a>
-    <a href="#dimensions" title="能力维度"><svg class="ic"><use href="#i-target"/></svg><span class="rail-label">能力维度</span></a>
-    <a href="#tasks" title="任务明细"><svg class="ic"><use href="#i-list"/></svg><span class="rail-label">任务明细</span></a>
-    <a href="#quality" title="工程表现"><svg class="ic"><use href="#i-shield"/></svg><span class="rail-label">工程表现</span></a>
+    <a href="#scorecard" aria-label="核心成绩"><svg class="ic"><use href="#i-scale"/></svg><span class="rail-tip">核心成绩</span></a>
+    <a href="#legal" aria-label="法律任务版图"><svg class="ic"><use href="#i-book"/></svg><span class="rail-tip">法律任务版图</span></a>
+    <a href="#leaderboard" aria-label="两榜总分"><svg class="ic"><use href="#i-columns"/></svg><span class="rail-tip">两榜总分</span></a>
+    <a href="#dimensions" aria-label="能力维度"><svg class="ic"><use href="#i-target"/></svg><span class="rail-tip">能力维度</span></a>
+    <a href="#tasks" aria-label="任务级明细"><svg class="ic"><use href="#i-list"/></svg><span class="rail-tip">任务级明细</span></a>
+    <a href="#quality" aria-label="工程表现"><svg class="ic"><use href="#i-shield"/></svg><span class="rail-tip">工程表现</span></a>
   </nav>
   <span class="rail-sep"></span>
-  <a class="rail-gh" href="https://github.com/CESTC-REAL" target="_blank" rel="noopener" title="GitHub 组织 CESTC-REAL">
-    <svg class="ic"><use href="#i-github"/></svg><span class="rail-label">GitHub</span>
+  <a class="rail-gh" href="https://github.com/CESTC-REAL" target="_blank" rel="noopener" aria-label="GitHub 组织 CESTC-REAL">
+    <svg class="ic"><use href="#i-github"/></svg><span class="rail-tip">GitHub 组织</span>
   </a>
 </aside>
 
 <!-- ===================== Hero ===================== -->
 <header class="hero" id="top">
   <div class="hero-mesh" aria-hidden="true"></div>
-  <svg class="hero-art" viewBox="0 0 420 430" aria-hidden="true">
+  <svg class="hero-art" viewBox="0 0 560 430" aria-hidden="true">
     <g fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="210" cy="186" r="168" stroke-dasharray="1.5 9" opacity=".55"/>
-      <circle cx="210" cy="186" r="132" opacity=".22"/>
-      <path d="M186 118h48v14h-48z" opacity=".5"/>
-      <path d="M192 132h36v212h-36z" opacity=".5"/>
-      <path d="M158 344h104v22H158z" opacity=".5"/>
-      <path d="M144 366h132l12 26H132z" opacity=".5"/>
-      <circle cx="210" cy="96" r="11"/>
-      <path d="M210 74v11"/>
-      <path d="M84 118 336 88" stroke-width="1.6"/>
-      <path d="M84 118v26"/><path d="M336 88v26"/>
-      <path d="M56 144h56c0 15-12.5 26-28 26s-28-11-28-26z" opacity=".8"/>
-      <path d="M308 114h56c0 15-12.5 26-28 26s-28-11-28-26z" opacity=".8"/>
-      <path d="M196 196h28v22h-28z" opacity=".7"/>
-      <path d="M186 218h48v14h-48z" opacity=".7"/>
+      <!-- 天平 -->
+      <circle cx="280" cy="196" r="168" stroke-dasharray="1.5 9" opacity=".5"/>
+      <path d="M256 128h48v14h-48z" opacity=".45"/>
+      <path d="M262 142h36v212h-36z" opacity=".45"/>
+      <path d="M228 354h104v22H228z" opacity=".45"/>
+      <path d="M214 376h132l12 26H202z" opacity=".45"/>
+      <circle cx="280" cy="106" r="11"/>
+      <path d="M280 84v11"/>
+      <path d="M154 128 406 98" stroke-width="1.6"/>
+      <path d="M154 128v26"/><path d="M406 98v26"/>
+      <path d="M126 154h56c0 15-12.5 26-28 26s-28-11-28-26z" opacity=".75"/>
+      <path d="M378 124h56c0 15-12.5 26-28 26s-28-11-28-26z" opacity=".75"/>
+      <!-- 法典（翻开的书） -->
+      <g opacity=".5">
+        <path d="M30 300h96c14 0 22 6 22 14v72c0-8-8-14-22-14H30z"/>
+        <path d="M170 300H74c-14 0-22 6-22 14v72c0-8 8-14 22-14h96z"/>
+        <path d="M148 314v58M52 322h64M52 338h64M100 322h44M100 338h44"/>
+      </g>
+      <!-- 立柱（法院意象） -->
+      <g opacity=".42">
+        <path d="M386 268h150l-14 16H400z"/>
+        <path d="M398 284h12v96h-12z"/><path d="M438 284h12v96h-12z"/>
+        <path d="M478 284h12v96h-12z"/><path d="M518 284h12v96h-12z"/>
+        <path d="M380 380h164v14H380z"/>
+      </g>
     </g>
   </svg>
 
@@ -170,13 +182,40 @@
     </div>
   </section>
 
-  <!-- ===================== 02 两榜总分 ===================== -->
-  <section class="section section-alt" id="leaderboard">
+  <!-- ===================== 02 法律任务版图 ===================== -->
+  <section class="section section-alt" id="legal">
     <div class="wrap">
       <div class="sec-head">
-        <span class="sec-icon"><svg class="ic"><use href="#i-scale"/></svg></span>
+        <span class="sec-icon"><svg class="ic"><use href="#i-book"/></svg></span>
         <div class="sec-text">
-          <div class="sec-index">02 / LEADERBOARD</div>
+          <div class="sec-index">02 / LEGAL TASK MAP</div>
+          <h2>法律任务版图</h2>
+          <p>35 项评测任务按法律实务职能归为五类。每类的任务数、均分与领先幅度均由逐项得分自动统计，带「罪」标记的是直接涉及罪名与量刑的任务。</p>
+        </div>
+      </div>
+
+      <div class="legal-grid" id="legal-grid"></div>
+
+      <div class="charge-block">
+        <div class="charge-head">
+          <div>
+            <div class="sub-head"><svg class="ic"><use href="#i-seal"/></svg>罪名覆盖</div>
+            <p class="sub-note">下列罪名取自指定条号查询任务的原始作答记录，均为评测中真实出现的罪名。</p>
+          </div>
+          <svg class="stamp stamp-legal" viewBox="0 0 120 120" aria-hidden="true"></svg>
+        </div>
+        <div class="charge-wall" id="charge-wall"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 03 两榜总分 ===================== -->
+  <section class="section" id="leaderboard">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-icon"><svg class="ic"><use href="#i-columns"/></svg></span>
+        <div class="sec-text">
+          <div class="sec-index">03 / LEADERBOARD</div>
           <h2>两榜总分</h2>
           <p>条形长度按满分 100 等比缩放。色块区分模型身份：蓝色为自研模型，绿色为开源法律模型，灰色为通用基座。</p>
         </div>
@@ -194,13 +233,13 @@
     </div>
   </section>
 
-  <!-- ===================== 03 能力维度 ===================== -->
+  <!-- ===================== 04 能力维度 ===================== -->
   <section class="section" id="dimensions">
     <div class="wrap">
       <div class="sec-head">
         <span class="sec-icon"><svg class="ic"><use href="#i-target"/></svg></span>
         <div class="sec-text">
-          <div class="sec-index">03 / CAPABILITY DIMENSIONS</div>
+          <div class="sec-index">04 / CAPABILITY DIMENSIONS</div>
           <h2>能力维度</h2>
           <p>LawBench 的 L1–L3 与 LexEval 的 L1–L4、L6 共 8 个维度，自研模型在每一个维度上都排在第一位。</p>
         </div>
@@ -232,13 +271,13 @@
     </div>
   </section>
 
-  <!-- ===================== 04 任务级明细 ===================== -->
+  <!-- ===================== 05 任务级明细 ===================== -->
   <section class="section section-alt" id="tasks">
     <div class="wrap">
       <div class="sec-head">
         <span class="sec-icon"><svg class="ic"><use href="#i-list"/></svg></span>
         <div class="sec-text">
-          <div class="sec-index">04 / TASK-LEVEL RESULTS</div>
+          <div class="sec-index">05 / TASK-LEVEL RESULTS</div>
           <h2>任务级明细</h2>
           <p>35 项任务的逐项得分，★ 标记该任务的最高分归属。差值列中绿色为领先、橙色为落后。</p>
         </div>
@@ -254,13 +293,13 @@
     </div>
   </section>
 
-  <!-- ===================== 05 工程表现 ===================== -->
+  <!-- ===================== 06 工程表现 ===================== -->
   <section class="section" id="quality">
     <div class="wrap">
       <div class="sec-head">
         <span class="sec-icon"><svg class="ic"><use href="#i-shield"/></svg></span>
         <div class="sec-text">
-          <div class="sec-index">05 / PRODUCTION QUALITY</div>
+          <div class="sec-index">06 / PRODUCTION QUALITY</div>
           <h2>工程表现</h2>
           <p>关闭思考模式下的输出稳定性：无效回答占比、输出长度，以及各任务上的代表性错误案例。</p>
         </div>
@@ -281,22 +320,23 @@
         </table>
       </div>
 
+      <div class="chart-card law-block">
+        <div class="chart-title"><svg class="ic"><use href="#i-seal"/></svg><span id="err1-title"></span></div>
+        <div class="chart-sub">条号与条文错配的代表性案例，按法律引用体例排版</div>
+        <div class="law-cards" id="law-cards"></div>
+      </div>
+
       <div class="error-grid">
-        <div class="chart-card">
-          <div class="chart-title"><svg class="ic"><use href="#i-doc"/></svg><span id="err1-title"></span></div>
-          <div class="chart-sub">条号与条文错配的代表性案例</div>
-          <div class="table-wrap table-wrap-flat"><table><thead id="err1-head"></thead><tbody id="err1-body"></tbody></table></div>
-        </div>
         <div class="chart-card">
           <div class="chart-title"><svg class="ic"><use href="#i-book"/></svg><span id="err2-title"></span></div>
           <div class="chart-sub">要素抽取遗漏的代表性案例</div>
           <div class="table-wrap table-wrap-flat"><table><thead id="err2-head"></thead><tbody id="err2-body"></tbody></table></div>
         </div>
-      </div>
-
-      <h3 class="sub-head"><svg class="ic"><use href="#i-chip"/></svg><span id="err3-title"></span></h3>
-      <div class="table-wrap">
-        <table class="cmp-table"><thead id="err3-head"></thead><tbody id="err3-body"></tbody></table>
+        <div class="chart-card">
+          <div class="chart-title"><svg class="ic"><use href="#i-chip"/></svg><span id="err3-title"></span></div>
+          <div class="chart-sub">各模型在开放式刑期预测上的误差幅度与高估／低估分布</div>
+          <div class="table-wrap table-wrap-flat"><table><thead id="err3-head"></thead><tbody id="err3-body"></tbody></table></div>
+        </div>
       </div>
     </div>
   </section>
@@ -314,6 +354,7 @@
       <a href="https://github.com/CESTC-REAL" target="_blank" rel="noopener">GitHub 组织 CESTC-REAL</a>
       <a href="https://github.com/CESTC-REAL/legal-llm-test-report" target="_blank" rel="noopener">本项目源码</a>
       <div id="footer-date"></div>
+      <svg class="stamp stamp-foot" viewBox="0 0 120 120" aria-hidden="true"></svg>
     </div>
   </div>
 </footer>

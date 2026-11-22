@@ -351,6 +351,95 @@
     fillParas("dimension-cap", D.dimensionNote);
   })();
 
+  /* ---------------- 法律任务版图 ---------------- */
+  (function () {
+    var grid = $("legal-grid");
+    var wall = $("charge-wall");
+    var LM = D.legalMap;
+    if (!LM) return;
+
+    if (grid) {
+      (LM.categories || []).forEach(function (c) {
+        var hasCharge = (c.items || []).some(function (it) { return it.charge; });
+        var card = el("div", { class: "legal-card" + (hasCharge ? " is-charge" : "") });
+
+        card.appendChild(el("div", { class: "legal-card-head" }, [
+          el("span", { class: "legal-card-icon" }, [icon(c.icon)]),
+          el("span", { class: "legal-card-name", text: c.name }),
+          el("span", { class: "legal-card-count", text: c.count + " 项" })
+        ]));
+        card.appendChild(el("div", { class: "legal-card-desc", text: c.desc }));
+        card.appendChild(el("div", { class: "legal-card-score" }, [
+          el("b", { text: fmt(c.selfAvg) }),
+          el("span", { text: "类均分" })
+        ]));
+
+        var delta = Number(c.deltaBase);
+        card.appendChild(el("div", {
+          class: "legal-card-delta" + (delta < 0 ? " neg" : ""),
+          text: "较基座 " + (delta > 0 ? "+" : "") + fmt(c.deltaBase) + " 分"
+        }));
+
+        if (c.top) {
+          card.appendChild(el("div", { class: "legal-card-top" }, [
+            el("span", { text: "最高分任务 " }),
+            el("b", { text: c.top.name }),
+            el("span", { text: "（" + c.top.dataset + "） " + fmt(c.top.score) + " 分" })
+          ]));
+        }
+
+        card.appendChild(el("div", { class: "legal-tags" }, (c.items || []).map(function (it) {
+          return el("span", { class: "legal-tag" + (it.charge ? " charge" : ""), text: it.name });
+        })));
+
+        grid.appendChild(card);
+      });
+    }
+
+    if (wall) {
+      (LM.charges || []).forEach(function (name) {
+        wall.appendChild(el("span", { class: "charge-seal", text: name }));
+      });
+    }
+  })();
+
+  /* ---------------- 法条引用卡 ---------------- */
+  (function () {
+    var host = $("law-cards");
+    var t = $("err1-title");
+    var d = D.errorCases;
+    if (!host || !d) return;
+    if (t) t.textContent = d.title;
+
+    function cite(text) {
+      // 「170、234」-> 「第170条、第234条」
+      var parts = String(text).split(/[、,，]\s*/).filter(Boolean);
+      return parts.map(function (p) {
+        var m = p.match(/(\d+)/);
+        return m ? "第 " + m[1] + " 条" : p;
+      }).join("、");
+    }
+
+    (d.rows || []).forEach(function (r) {
+      var card = el("div", { class: "law-card" });
+      card.appendChild(el("div", { class: "law-card-head" }, [
+        el("span", { class: "law-charge", text: r[1] }),
+        el("span", { class: "law-qid", text: "题目 " + r[0] })
+      ]));
+      card.appendChild(el("div", { class: "law-cite" }, [
+        el("div", { class: "law-cite-item" }, [
+          el("em", { text: "标准条号" }),
+          el("b", { text: cite(r[2]) })
+        ]),
+        el("div", { class: "law-cite-item out" }, [
+          el("em", { text: "自研模型输出" }),
+          el("b", { text: cite(r[3]) })
+        ])
+      ]));
+      host.appendChild(card);
+    });
+  })();
+
   /* ---------------- 任务级明细 ---------------- */
   (function () {
     var host = $("task-tables");
@@ -375,6 +464,9 @@
           if (isBest) {
             td.innerHTML = td.innerHTML + '<span class="best-mark">★</span>';
             td.className += " is-best";
+          }
+          if (col.key === "task" && r.charge) {
+            td.innerHTML = td.innerHTML + '<span class="charge-mark" title="涉及罪名与量刑">罪</span>';
           }
           tr.appendChild(td);
         });
@@ -464,9 +556,25 @@
     });
   }
 
-  renderCase("err1-title", "err1-head", "err1-body", D.errorCases);
   renderCase("err2-title", "err2-head", "err2-body", D.extractMisses);
   renderCase("err3-title", "err3-head", "err3-body", D.sentenceError);
+
+  /* ---------------- 核验印章 ---------------- */
+  /* 说明：印章用 textPath 排环形文字，而 textPath 的 href 只能在同一 SVG 树内解析，
+     <use> 的影子树里无法跨树引用，故此处直接注入完整印章内容（每处 arc id 唯一）。 */
+  (function () {
+    var stamps = document.querySelectorAll(".stamp");
+    Array.prototype.forEach.call(stamps, function (s, i) {
+      var arc = "sealArc" + i;
+      s.innerHTML =
+        '<circle cx="60" cy="60" r="56" fill="none" stroke="currentColor" stroke-width="3.4"/>' +
+        '<circle cx="60" cy="60" r="47.5" fill="none" stroke="currentColor" stroke-width="1.1"/>' +
+        '<path id="' + arc + '" d="M60 13.5A46.5 46.5 0 1 1 59.9 13.5" fill="none" stroke="none"/>' +
+        '<text font-size="11.5" fill="currentColor" textLength="268" lengthAdjust="spacing">' +
+        '<textPath href="#' + arc + '" startOffset="0">中国电子云法律大模型评测结果核验专用</textPath></text>' +
+        '<path d="M60 40l5.6 11.4 12.6 1.8-9.1 8.9 2.1 12.5L60 68.4l-11.2 6.2 2.1-12.5-9.1-8.9 12.6-1.8z" fill="currentColor"/>';
+    });
+  })();
 
   /* ---------------- 页脚 ---------------- */
   fillParas("footer-note", D.footerNote);

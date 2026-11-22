@@ -197,6 +197,99 @@ lb_first = count_first(lb)
 le_first = count_first(le)
 task_first = {k: lb_first[k] + le_first[k] for k in MODEL_KEYS}
 
+# -------------------------------------------------- 法律任务版图（按法律实务归类）
+# 归类规则：把两套评测集的 35 项任务按法律实务职能归入 5 个类别。
+# 类别下的任务数、均分、较基座差值、最高分任务全部由原始逐项表统计，不手工填写。
+LEGAL_CATEGORIES = [
+    ("knowledge", "法律知识与检索", "i-book",
+     "法律概念、法规条文、立法沿革与类案辨别"),
+    ("extraction", "文书理解与信息抽取", "i-doc",
+     "卷宗要素、实体关系、争议焦点与证据抽取"),
+    ("sentencing", "定罪量刑与法律计算", "i-gavel",
+     "罪名、案由、刑期与涉案金额的推理计算"),
+    ("application", "法条适用与文书生成", "i-seal",
+     "法条定位、案例分析与法律文书写作"),
+    ("ethics", "法律伦理与合规", "i-shield",
+     "司法偏见、道德边界与隐私保护"),
+]
+
+LEGAL_CATEGORY_BY_TASK = {
+    # 法律知识与检索
+    "知识问答": "knowledge", "法律概念": "knowledge", "法规查询": "knowledge",
+    "法律演进": "knowledge", "类案辨别": "knowledge",
+    # 文书理解与信息抽取
+    "文件校对": "extraction", "纠纷焦点识别": "extraction",
+    "问题主题识别": "extraction", "阅读理解": "extraction",
+    "命名实体识别": "extraction", "论点挖掘": "extraction",
+    "事件检测": "extraction", "触发词提取": "extraction",
+    "要素识别": "extraction", "事实验证": "extraction",
+    "关系提取": "extraction", "实体识别": "extraction",
+    "论辩挖掘": "extraction",
+    # 定罪量刑与法律计算
+    "婚姻纠纷鉴定": "sentencing", "罪名预测": "sentencing",
+    "案由预测": "sentencing", "刑期预测": "sentencing",
+    "刑期预测（无法条）": "sentencing", "刑期预测（有法条）": "sentencing",
+    "犯罪金额计算": "sentencing", "法律计算": "sentencing",
+    "多层推理": "sentencing",
+    # 法条适用与文书生成
+    "法条预测": "application", "案例分析": "application",
+    "文书质量": "application",
+    # 法律伦理与合规
+    "偏见歧视": "ethics", "道德": "ethics", "隐私": "ethics",
+}
+
+# 涉及罪名 / 量刑的任务，在明细表中加「罪」标记
+CHARGE_TASKS = {"罪名预测", "案由预测", "刑期预测", "刑期预测（无法条）",
+                "刑期预测（有法条）", "犯罪金额计算", "婚姻纠纷鉴定"}
+
+
+def strip_code(task):
+    """去掉任务编号前缀（'1-2 知识问答' -> '知识问答'）。"""
+    return re.sub(r"^\d+[-_]\d+\s*", "", task.strip())
+
+
+legal_items = []
+for dataset, rows in (("LawBench", lb), ("LexEval", le)):
+    for r in rows:
+        name = strip_code(r["task"])
+        legal_items.append({
+            "task": r["task"], "name": name,
+            "cat": LEGAL_CATEGORY_BY_TASK.get(name),
+            "dataset": dataset,
+            "self": r["self"], "base": r["base"],
+            "charge": name in CHARGE_TASKS,
+        })
+
+legal_categories = []
+for key, label, icon, desc in LEGAL_CATEGORIES:
+    items = [it for it in legal_items if it["cat"] == key]
+    self_vals = [it["self"] for it in items if it["self"] is not None]
+    base_vals = [it["base"] for it in items if it["base"] is not None]
+    self_avg = r2(sum(self_vals) / len(self_vals)) if self_vals else None
+    base_avg = r2(sum(base_vals) / len(base_vals)) if base_vals else None
+    top = max((it for it in items if it["self"] is not None),
+              key=lambda it: it["self"], default=None)
+    legal_categories.append({
+        "key": key, "name": label, "icon": icon, "desc": desc,
+        "count": len(items), "selfAvg": self_avg, "baseAvg": base_avg,
+        "deltaBase": r2(self_avg - base_avg) if (self_avg is not None and base_avg is not None) else None,
+        "top": top,
+        "items": items,
+    })
+
+legal_unclassified = sorted({it["name"] for it in legal_items if not it["cat"]})
+
+# 罪名词表：来自错例表中的真实罪名字段
+legal_charges = []
+for row in load_csv("Nh1Sfv")[1:]:
+    if len(row) < 2:
+        continue
+    for c in re.split(r"[、,，]", row[1].strip()):
+        c = c.strip()
+        if c and c not in legal_charges:
+            legal_charges.append(c)
+
+
 dim_first = dict.fromkeys(MODEL_KEYS, 0)
 for r in dim_rows:
     if len(r) < 6:
@@ -518,11 +611,12 @@ w("      rows: [")
 for row in lb:
     best = max([row["self"], row["rivalOne"], row["rivalTwo"], row["base"]], default=None)
     w("        { task: %s, dim: %s, self: %s, selfAux: %s, selfInvalid: %s, rivalOne: %s, rivalTwo: %s, base: %s, "
-      "deltaBase: %s, deltaRival: %s, best: %s }," %
+      "deltaBase: %s, deltaRival: %s, best: %s, charge: %s }," %
       (j(row["task"]), j(row["dim"]), j(row["self"]), j(row["selfAux"]), j(row["selfInvalid"]),
        j(row["rivalOne"]), j(row["rivalTwo"]), j(row["base"]),
        j(row["deltaBase"]), j(row["deltaRival"]),
-       j("self") if row["self"] == best else "null"))
+       j("self") if row["self"] == best else "null",
+       "true" if strip_code(row["task"]) in CHARGE_TASKS else "false"))
 w("      ]")
 w("    },")
 w("    {")
@@ -543,14 +637,39 @@ w("      rows: [")
 for row in le:
     best = max([row["self"], row["rivalOne"], row["rivalTwo"], row["base"]], default=None)
     w("        { task: %s, dim: %s, count: %s, self: %s, rivalOne: %s, rivalTwo: %s, base: %s, "
-      "deltaBase: %s, deltaRival: %s, best: %s }," %
+      "deltaBase: %s, deltaRival: %s, best: %s, charge: %s }," %
       (j(row["task"]), j(row["dim"]), j(row["count"]), j(row["self"]),
        j(row["rivalOne"]), j(row["rivalTwo"]), j(row["base"]),
        j(row["deltaBase"]), j(row["deltaRival"]),
-       j("self") if row["self"] == best else "null"))
+       j("self") if row["self"] == best else "null",
+       "true" if strip_code(row["task"]) in CHARGE_TASKS else "false"))
 w("      ]")
 w("    }")
 w("  ],")
+w("")
+
+# ---------------------------------------------------------------- 法律任务版图
+w("  legalMap: {")
+w("    categories: [")
+for c in legal_categories:
+    w("      { key: %s, name: %s, icon: %s, desc: %s, count: %d, selfAvg: %s, baseAvg: %s, deltaBase: %s," %
+      (j(c["key"]), j(c["name"]), j(c["icon"]), j(c["desc"]), c["count"],
+       j(c["selfAvg"]), j(c["baseAvg"]), j(c["deltaBase"])))
+    w("        top: { task: %s, name: %s, dataset: %s, score: %s }," %
+      (j(c["top"]["task"] if c["top"] else None),
+       j(c["top"]["name"] if c["top"] else None),
+       j(c["top"]["dataset"] if c["top"] else None),
+       j(c["top"]["self"] if c["top"] else None)))
+    w("        items: [")
+    for it in c["items"]:
+        w("          { name: %s, task: %s, dataset: %s, self: %s, charge: %s }," %
+          (j(it["name"]), j(it["task"]), j(it["dataset"]), j(it["self"]),
+           "true" if it["charge"] else "false"))
+    w("        ] },")
+w("    ],")
+w("    charges: [%s]," % ", ".join(j(c) for c in legal_charges))
+w("    unclassified: [%s]" % ", ".join(j(x) for x in legal_unclassified))
+w("  },")
 w("")
 
 # 校验结论（写进页面）
