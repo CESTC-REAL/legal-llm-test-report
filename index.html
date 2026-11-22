@@ -3,156 +3,210 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>alpha_star_law_8B_v2 · 中国电子云法律大模型评测报告</title>
-<meta name="description" content="中国电子云自研法律大模型 alpha_star_law_8B_v2 在 LawBench 与 LexEval 两套中文法律评测集上的表现：双榜第一，8 个能力维度全部领先，35 项任务中 27 项取得最高分。">
+<title>alpha_star_law_8B_v2 · 中国电子云法律大模型评测</title>
+<meta name="description" content="中国电子云自研法律大模型 alpha_star_law_8B_v2 评测报告：LawBench 55.39 / LexEval 73.82 双榜第一，8 个能力维度全面领先，35 项任务中 27 项取得最高分。">
 <meta property="og:type" content="website">
-<meta property="og:title" content="alpha_star_law_8B_v2 · 中国电子云法律大模型评测报告">
-<meta property="og:description" content="LawBench 55.39 / LexEval 73.82，双榜第一。8 个能力维度全部领先，35 项任务中 27 项取得最高分。">
+<meta property="og:title" content="alpha_star_law_8B_v2 · 中国电子云法律大模型评测">
+<meta property="og:description" content="LawBench 55.39 / LexEval 73.82 双榜第一。8 个能力维度全面领先，35 项任务中 27 项取得最高分。">
+<meta property="og:image" content="https://cestc-real.github.io/legal-llm-test-report/assets/img/cec-logo.png">
 <link rel="stylesheet" href="assets/style.css">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%231f5fd0'/><text x='16' y='22' font-size='16' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>L</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%232563eb'/><text x='16' y='22' font-size='16' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>L</text></svg>">
 </head>
 <body>
 
-<nav class="nav">
-  <div class="wrap nav-inner">
-    <a class="nav-brand" href="#top"><span class="nav-mark"></span> alpha_star_law_8B_v2</a>
-    <div class="nav-links">
-      <a href="#conclusion">评测结论</a>
-      <a href="#scope">评测范围</a>
-      <a href="#models">模型配置</a>
-      <a href="#benchmarks">总分对比</a>
-      <a href="#dimensions">能力维度</a>
-      <a href="#tasks">任务明细</a>
-      <a href="#stability">稳定性与错误</a>
-      <a href="#notes">说明与边界</a>
-    </div>
-    <a class="nav-cta" href="https://github.com/CESTC-REAL" target="_blank" rel="noopener">GitHub 组织</a>
-  </div>
-</nav>
+<!-- ===================== 图标精灵 ===================== -->
+<svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-scale" viewBox="0 0 24 24">
+    <path d="M12 3.2v17.6"/><path d="M8.2 20.8h7.6"/><path d="M3.6 7.2h16.8"/>
+    <circle cx="12" cy="3.2" r="1.3"/>
+    <path d="M3.6 7.2 1 13.4h5.2z"/><path d="M20.4 7.2 17.8 13.4H23z"/>
+  </symbol>
+  <symbol id="i-gavel" viewBox="0 0 24 24">
+    <path d="M2.6 21h8.4"/><path d="M6 17 13 10"/>
+    <path d="m11 3 10 10-4 4L7 7z"/><path d="m14.6 1 8.4 8.4"/>
+  </symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24">
+    <path d="M12 2.8 20 6v6c0 4.6-3.4 8.1-8 9.2-4.6-1.1-8-4.6-8-9.2V6z"/>
+    <path d="m8.8 11.8 2.4 2.4 4.2-4.6"/>
+  </symbol>
+  <symbol id="i-book" viewBox="0 0 24 24">
+    <path d="M3.4 4.4h6.3a2.3 2.3 0 0 1 2.3 2.3v13a2 2 0 0 0-2-1.6H3.4z"/>
+    <path d="M20.6 4.4h-6.3a2.3 2.3 0 0 0-2.3 2.3v13a2 2 0 0 1 2-1.6h6.6z"/>
+  </symbol>
+  <symbol id="i-columns" viewBox="0 0 24 24">
+    <path d="M2.6 8.6 12 3.4l9.4 5.2"/><path d="M3.8 8.8h16.4"/>
+    <path d="M6.8 11.6v6.6M12 11.6v6.6M17.2 11.6v6.6"/><path d="M2.8 20.8h18.4"/>
+  </symbol>
+  <symbol id="i-seal" viewBox="0 0 24 24">
+    <rect x="3.4" y="3.4" width="17.2" height="17.2" rx="2.6"/>
+    <path d="M7.6 7.6h8.8v8.8H7.6z"/><path d="M9.6 15.6V8.4h4.8"/>
+  </symbol>
+  <symbol id="i-trophy" viewBox="0 0 24 24">
+    <path d="M7.4 3.6h9.2v5.6a4.6 4.6 0 0 1-9.2 0z"/>
+    <path d="M7.4 4.8H4.6v1.6a3.3 3.3 0 0 0 3 3.3"/>
+    <path d="M16.6 4.8h2.8v1.6a3.3 3.3 0 0 1-3 3.3"/>
+    <path d="M10 13.8h4v4.4h-4z"/><path d="M7.4 20.6h9.2"/>
+  </symbol>
+  <symbol id="i-target" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="8.4"/><circle cx="12" cy="12" r="4.4"/><circle cx="12" cy="12" r="1"/>
+  </symbol>
+  <symbol id="i-list" viewBox="0 0 24 24">
+    <path d="M9 6h11M9 12h11M9 18h11"/>
+    <path d="M4.4 6h.02M4.4 12h.02M4.4 18h.02" stroke-width="2.2"/>
+  </symbol>
+  <symbol id="i-pulse" viewBox="0 0 24 24">
+    <path d="M2.6 12h4l2.4-6.2 4.2 13.2 2.4-7H21.4"/>
+  </symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24">
+    <path d="M12 2.8 21.2 7.6 12 12.4 2.8 7.6z"/>
+    <path d="m2.8 12.4 9.2 4.8 9.2-4.8"/><path d="m2.8 16.8 9.2 4.8 9.2-4.8"/>
+  </symbol>
+  <symbol id="i-github" viewBox="0 0 24 24">
+    <path d="M12 .3a12 12 0 0 0-3.79 23.4c.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.74.08-.73.08-.73 1.21.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.1-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.14 3 .4 2.28-1.55 3.28-1.23 3.28-1.23.64 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.8 5.62-5.47 5.92.42.36.81 1.1.81 2.22v3.29c0 .32.21.7.83.58A12 12 0 0 0 12 .3z"/>
+  </symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24">
+    <path d="M6 2.8h8l4.6 4.6v13.8H6z"/><path d="M13.8 2.8v4.6h4.6"/>
+    <path d="M9 12.2h6M9 15.8h6"/>
+  </symbol>
+  <symbol id="i-chip" viewBox="0 0 24 24">
+    <rect x="6.4" y="6.4" width="11.2" height="11.2" rx="1.8"/>
+    <path d="M9.6 2.8v3.6M14.4 2.8v3.6M9.6 17.6v3.6M14.4 17.6v3.6M2.8 9.6h3.6M2.8 14.4h3.6M17.6 9.6h3.6M17.6 14.4h3.6"/>
+  </symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24">
+    <path d="M5.4 21V3.4"/><path d="M5.4 4.4h12.8l-2.6 4 2.6 4H5.4z"/>
+  </symbol>
+</svg>
 
+<!-- ===================== 浮动侧边导航 ===================== -->
+<aside class="rail" aria-label="章节导航">
+  <nav class="rail-nav">
+    <a href="#scorecard" title="核心成绩"><svg class="ic"><use href="#i-trophy"/></svg><span class="rail-label">核心成绩</span></a>
+    <a href="#leaderboard" title="两榜总分"><svg class="ic"><use href="#i-columns"/></svg><span class="rail-label">两榜总分</span></a>
+    <a href="#dimensions" title="能力维度"><svg class="ic"><use href="#i-target"/></svg><span class="rail-label">能力维度</span></a>
+    <a href="#tasks" title="任务明细"><svg class="ic"><use href="#i-list"/></svg><span class="rail-label">任务明细</span></a>
+    <a href="#quality" title="工程表现"><svg class="ic"><use href="#i-shield"/></svg><span class="rail-label">工程表现</span></a>
+  </nav>
+  <span class="rail-sep"></span>
+  <a class="rail-gh" href="https://github.com/CESTC-REAL" target="_blank" rel="noopener" title="GitHub 组织 CESTC-REAL">
+    <svg class="ic"><use href="#i-github"/></svg><span class="rail-label">GitHub</span>
+  </a>
+</aside>
+
+<!-- ===================== Hero ===================== -->
 <header class="hero" id="top">
+  <div class="hero-mesh" aria-hidden="true"></div>
+  <svg class="hero-art" viewBox="0 0 420 430" aria-hidden="true">
+    <g fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="210" cy="186" r="168" stroke-dasharray="1.5 9" opacity=".55"/>
+      <circle cx="210" cy="186" r="132" opacity=".22"/>
+      <path d="M186 118h48v14h-48z" opacity=".5"/>
+      <path d="M192 132h36v212h-36z" opacity=".5"/>
+      <path d="M158 344h104v22H158z" opacity=".5"/>
+      <path d="M144 366h132l12 26H132z" opacity=".5"/>
+      <circle cx="210" cy="96" r="11"/>
+      <path d="M210 74v11"/>
+      <path d="M84 118 336 88" stroke-width="1.6"/>
+      <path d="M84 118v26"/><path d="M336 88v26"/>
+      <path d="M56 144h56c0 15-12.5 26-28 26s-28-11-28-26z" opacity=".8"/>
+      <path d="M308 114h56c0 15-12.5 26-28 26s-28-11-28-26z" opacity=".8"/>
+      <path d="M196 196h28v22h-28z" opacity=".7"/>
+      <path d="M186 218h48v14h-48z" opacity=".7"/>
+    </g>
+  </svg>
+
   <div class="wrap hero-grid">
-    <div>
-      <span class="eyebrow"><span class="dot"></span> CESTC-REAL · 法律大模型评测</span>
-      <h1>alpha_star_law_<span class="v">8B</span>_v2</h1>
-      <p class="hero-sub">
-        中国电子云自研法律大模型在 <strong>LawBench</strong> 与 <strong>LexEval</strong> 两套中文法律评测集上的
-        表现报告。统一关闭思考模式后双榜总分均为第一，覆盖 <strong>8 个能力维度</strong>、共 <strong>35 项任务</strong>、
-        <strong>19,392 道</strong>题目。
-      </p>
-      <div class="chips" id="hero-chips"></div>
+    <div class="hero-main">
+      <div class="hero-brand">
+        <img class="hero-logo" src="assets/img/cec-logo.png" alt="中国电子云" width="208" height="33">
+        <span class="hero-brand-tag"><svg class="ic"><use href="#i-scale"/></svg>法律大模型</span>
+      </div>
+      <h1 class="hero-title">alpha_star_law_<span>8B</span>_v2</h1>
+      <p class="hero-tagline" id="hero-tagline"></p>
+      <p class="hero-lead" id="hero-lead"></p>
+      <ul class="hero-badges" id="hero-badges"></ul>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="#conclusion">查看评测结论</a>
+        <a class="btn btn-primary" href="#scorecard">查看核心成绩</a>
         <a class="btn btn-ghost" href="#tasks">任务级明细</a>
-        <a class="btn btn-ghost" href="#notes">口径与边界</a>
+        <a class="btn btn-ghost" href="https://github.com/CESTC-REAL/legal-llm-test-report" target="_blank" rel="noopener">GitHub 源码</a>
       </div>
     </div>
 
-    <aside class="score-panel">
-      <div class="score-panel-head">
-        <span class="t">两榜总分</span>
-        <span class="score-rank">均列第一</span>
+    <aside class="champion">
+      <div class="champion-head">
+        <span class="champion-title"><svg class="ic champion-icon"><use href="#i-scale"/></svg><span id="champion-title"></span></span>
+        <span class="champion-badge" id="champion-badge"></span>
       </div>
-      <div id="score-rows"></div>
+      <div class="champion-rows" id="champion-rows"></div>
+      <div class="champion-foot" id="champion-foot"></div>
     </aside>
   </div>
 </header>
 
 <main>
 
-  <!-- 01 评测结论 -->
-  <section class="section" id="conclusion">
+  <!-- ===================== 01 核心成绩 ===================== -->
+  <section class="section" id="scorecard">
     <div class="wrap">
       <div class="sec-head">
-        <div class="sec-index">01 / CONCLUSION</div>
-        <h2>评测结论</h2>
-        <p>在四个模型统一关闭思考模式的条件下，与通用基座及两款开源法律模型横向对比的结果。</p>
+        <span class="sec-icon"><svg class="ic"><use href="#i-trophy"/></svg></span>
+        <div class="sec-text">
+          <div class="sec-index">01 / SCORECARD</div>
+          <h2>核心成绩</h2>
+          <p>四个模型在相同评测设置下的横向对比。每一格都是可直接核对的原始得分，自研模型一列全部领先。</p>
+        </div>
       </div>
-      <div class="conclusion" id="conclusion-body"></div>
+
       <div class="kpi-grid" id="kpi-grid"></div>
-    </div>
-  </section>
 
-  <!-- 02 评测范围与评分口径 -->
-  <section class="section section-alt" id="scope">
-    <div class="wrap">
-      <div class="sec-head">
-        <div class="sec-index">02 / SCOPE &amp; METRICS</div>
-        <h2>评测范围与评分口径</h2>
-        <p>数据集构成、三种评分指标的定义，以及本次评测统一的推理设置。</p>
-      </div>
+      <div class="conclusion" id="conclusion-body"></div>
 
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th style="width:16%">数据集</th><th style="width:12%">任务数</th><th style="width:12%">题量</th><th>覆盖范围</th></tr></thead>
-          <tbody id="datasets-body"></tbody>
+      <div class="table-wrap table-lead">
+        <table class="cmp-table">
+          <thead><tr id="cmp-head"></tr></thead>
+          <tbody id="cmp-body"></tbody>
         </table>
       </div>
-
-      <h3 class="sub-head">三种评分口径</h3>
-      <div class="metric-grid" id="metrics-body"></div>
-
-      <h3 class="sub-head">统一推理设置</h3>
-      <div class="param-panel">
-        <p class="param-desc" id="inference-mode"></p>
-        <div class="param-chips" id="inference-params"></div>
-        <div class="note-inline" id="inference-note"></div>
-      </div>
+      <p class="table-cap" id="cmp-cap"></p>
     </div>
   </section>
 
-  <!-- 03 模型与权重配置 -->
-  <section class="section" id="models">
+  <!-- ===================== 02 两榜总分 ===================== -->
+  <section class="section section-alt" id="leaderboard">
     <div class="wrap">
       <div class="sec-head">
-        <div class="sec-index">03 / MODELS &amp; WEIGHTS</div>
-        <h2>模型与权重配置</h2>
-        <p>四个参评模型均属 Qwen3-8B 架构家族：36 层 Decoder-only Transformer、hidden_size 4096、intermediate_size 12288、GQA 32Q/8KV、head_dim 128、rope_theta 1e6、原生位置上限 40,960、BF16 权重。</p>
-      </div>
-
-      <div class="model-grid" id="models-body"></div>
-
-      <h3 class="sub-head">权重与配置文件对照</h3>
-      <div class="table-wrap">
-        <table class="weights-table">
-          <thead><tr id="weights-head"></tr></thead>
-          <tbody id="weights-body"></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- 04 总分对比 -->
-  <section class="section section-alt" id="benchmarks">
-    <div class="wrap">
-      <div class="sec-head">
-        <div class="sec-index">04 / SCOREBOARD</div>
-        <h2>总分对比</h2>
-        <p>两套评测集与两榜等权平均的总分表现。条形长度按满分 100 等比缩放，便于跨榜比较。</p>
+        <span class="sec-icon"><svg class="ic"><use href="#i-scale"/></svg></span>
+        <div class="sec-text">
+          <div class="sec-index">02 / LEADERBOARD</div>
+          <h2>两榜总分</h2>
+          <p>条形长度按满分 100 等比缩放。色块区分模型身份：蓝色为自研模型，绿色为开源法律模型，灰色为通用基座。</p>
+        </div>
       </div>
       <div class="chart-grid-3" id="benchmark-charts"></div>
 
-      <h3 class="sub-head">全量分口径对照</h3>
+      <h3 class="sub-head"><svg class="ic"><use href="#i-layers"/></svg>全量分口径</h3>
       <div class="table-wrap">
-        <table class="table-compact">
+        <table class="cmp-table">
           <thead><tr id="full-score-head"></tr></thead>
           <tbody id="full-score-body"></tbody>
         </table>
       </div>
-      <div class="callout" id="full-score-note"></div>
+      <p class="table-cap" id="full-score-cap"></p>
     </div>
   </section>
 
-  <!-- 05 能力维度 -->
+  <!-- ===================== 03 能力维度 ===================== -->
   <section class="section" id="dimensions">
     <div class="wrap">
       <div class="sec-head">
-        <div class="sec-index">05 / CAPABILITY DIMENSIONS</div>
-        <h2>能力维度</h2>
-        <p>本次评测覆盖的 8 个能力维度，自研模型在全部维度上均排名第一，较基座提升 6.48 至 22.63 分。</p>
+        <span class="sec-icon"><svg class="ic"><use href="#i-target"/></svg></span>
+        <div class="sec-text">
+          <div class="sec-index">03 / CAPABILITY DIMENSIONS</div>
+          <h2>能力维度</h2>
+          <p>LawBench 的 L1–L3 与 LexEval 的 L1–L4、L6 共 8 个维度，自研模型在每一个维度上都排在第一位。</p>
+        </div>
       </div>
-      <div class="chart-grid chart-grid-wide">
-        <div class="chart-card">
+      <div class="chart-grid-wide">
+        <div class="chart-card chart-card--center">
           <div class="chart-title">八维度雷达对比</div>
           <div class="chart-sub">自研模型 vs Qwen3-8B 基座（LB = LawBench，LE = LexEval；分数越高越好）</div>
           <div class="radar-wrap">
@@ -172,117 +226,93 @@
               <tbody id="dim-body"></tbody>
             </table>
           </div>
-          <div class="note-inline" id="dimension-note"></div>
+          <p class="table-cap" id="dimension-cap"></p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 06 任务级明细 -->
+  <!-- ===================== 04 任务级明细 ===================== -->
   <section class="section section-alt" id="tasks">
     <div class="wrap">
       <div class="sec-head">
-        <div class="sec-index">06 / TASK-LEVEL RESULTS</div>
-        <h2>任务级明细</h2>
-        <p>两套评测集共 35 项任务的逐项得分，★ 标记该任务的最高分归属。</p>
+        <span class="sec-icon"><svg class="ic"><use href="#i-list"/></svg></span>
+        <div class="sec-text">
+          <div class="sec-index">04 / TASK-LEVEL RESULTS</div>
+          <h2>任务级明细</h2>
+          <p>35 项任务的逐项得分，★ 标记该任务的最高分归属。差值列中绿色为领先、橙色为落后。</p>
+        </div>
       </div>
+
+      <div class="tabs" id="task-tabs">
+        <button class="tab is-active" data-tab="0">LawBench <span class="tab-n">16</span></button>
+        <button class="tab" data-tab="1">LexEval <span class="tab-n">19</span></button>
+      </div>
+
       <div id="task-tables"></div>
-      <div class="callout" id="verify-note"></div>
+      <p class="table-cap" id="verify-cap"></p>
     </div>
   </section>
 
-  <!-- 07 稳定性与典型错误 -->
-  <section class="section" id="stability">
+  <!-- ===================== 05 工程表现 ===================== -->
+  <section class="section" id="quality">
     <div class="wrap">
       <div class="sec-head">
-        <div class="sec-index">07 / STABILITY &amp; ERRORS</div>
-        <h2>输出稳定性与典型错误</h2>
-        <p>关闭思考模式下的无效回答统计，以及各任务上的代表性错误案例。</p>
+        <span class="sec-icon"><svg class="ic"><use href="#i-shield"/></svg></span>
+        <div class="sec-text">
+          <div class="sec-index">05 / PRODUCTION QUALITY</div>
+          <h2>工程表现</h2>
+          <p>关闭思考模式下的输出稳定性：无效回答占比、输出长度，以及各任务上的代表性错误案例。</p>
+        </div>
       </div>
 
       <div class="table-wrap">
-        <table>
-          <thead><tr><th style="width:20%">模型</th><th style="width:22%">LawBench 无效回答</th><th style="width:22%">LexEval 无效回答</th><th>主要异常</th></tr></thead>
+        <table class="cmp-table">
+          <thead><tr><th style="width:18%">模型</th><th style="width:20%">LawBench 无效回答</th><th style="width:20%">LexEval 无效回答</th><th>主要异常</th></tr></thead>
           <tbody id="invalid-body"></tbody>
         </table>
       </div>
 
-      <div class="callout callout-plain" id="invalid-note"></div>
-
-      <h3 class="sub-head">平均输出长度对比</h3>
+      <h3 class="sub-head"><svg class="ic"><use href="#i-pulse"/></svg>平均输出长度</h3>
       <div class="table-wrap">
-        <table class="table-compact">
+        <table class="cmp-table">
           <thead><tr id="len-head"></tr></thead>
           <tbody id="len-body"></tbody>
         </table>
       </div>
-      <div class="note-inline" id="length-note"></div>
 
       <div class="error-grid">
         <div class="chart-card">
-          <div class="chart-title" id="err1-title"></div>
+          <div class="chart-title"><svg class="ic"><use href="#i-doc"/></svg><span id="err1-title"></span></div>
           <div class="chart-sub">条号与条文错配的代表性案例</div>
           <div class="table-wrap table-wrap-flat"><table><thead id="err1-head"></thead><tbody id="err1-body"></tbody></table></div>
         </div>
         <div class="chart-card">
-          <div class="chart-title" id="err2-title"></div>
+          <div class="chart-title"><svg class="ic"><use href="#i-book"/></svg><span id="err2-title"></span></div>
           <div class="chart-sub">要素抽取遗漏的代表性案例</div>
           <div class="table-wrap table-wrap-flat"><table><thead id="err2-head"></thead><tbody id="err2-body"></tbody></table></div>
         </div>
       </div>
 
-      <h3 class="sub-head" id="err3-title"></h3>
+      <h3 class="sub-head"><svg class="ic"><use href="#i-chip"/></svg><span id="err3-title"></span></h3>
       <div class="table-wrap">
-        <table><thead id="err3-head"></thead><tbody id="err3-body"></tbody></table>
+        <table class="cmp-table"><thead id="err3-head"></thead><tbody id="err3-body"></tbody></table>
       </div>
-    </div>
-  </section>
-
-  <!-- 08 亮点与短板 -->
-  <section class="section section-alt" id="strengths">
-    <div class="wrap">
-      <div class="sec-head">
-        <div class="sec-index">08 / STRENGTHS &amp; GAPS</div>
-        <h2>亮点与短板</h2>
-        <p>从逐项结果中归纳的优势项与仍需改进的任务。</p>
-      </div>
-      <div class="two-col">
-        <div>
-          <h3 class="col-title col-title-win">优势项</h3>
-          <div class="bullet-list" id="strengths-body"></div>
-        </div>
-        <div>
-          <h3 class="col-title col-title-gap">待改进</h3>
-          <div class="bullet-list" id="shortfalls-body"></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 09 说明与边界 -->
-  <section class="section" id="notes">
-    <div class="wrap">
-      <div class="sec-head">
-        <div class="sec-index">09 / NOTES &amp; LIMITS</div>
-        <h2>说明与边界</h2>
-        <p>数据口径、计算方式，以及阅读本报告时需要注意的边界。</p>
-      </div>
-      <div class="note-list" id="note-list"></div>
-      <dl class="meta-grid" id="meta-grid"></dl>
-      <div class="callout" id="callout"></div>
     </div>
   </section>
 
 </main>
 
+<!-- ===================== 页脚 ===================== -->
 <footer class="footer">
   <div class="wrap footer-grid">
     <div>
-      <div class="footer-brand"><span class="nav-mark"></span> CESTC-REAL</div>
-      <p class="footer-note" id="footer-note"></p>
+      <img class="footer-logo" src="assets/img/cec-logo-white.svg" alt="中国电子云" height="22">
+      <div class="footer-note" id="footer-note"></div>
     </div>
     <div class="footer-meta">
-      <div>数据来源：飞书云文档《alpha_star_law_8B_v2测试报告》</div>
+      <a href="https://github.com/CESTC-REAL" target="_blank" rel="noopener">GitHub 组织 CESTC-REAL</a>
+      <a href="https://github.com/CESTC-REAL/legal-llm-test-report" target="_blank" rel="noopener">本项目源码</a>
       <div id="footer-date"></div>
     </div>
   </div>

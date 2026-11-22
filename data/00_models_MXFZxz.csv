@@ -1,5 +1,0 @@
-[row=1] 模型,,来源,训练路线
-[row=2] alpha_star_law_8B_v2,,中国电子云,通用数据cpt + 法律领域 SFT + 强化学习，alpha_star_law_8B_v2 版本
-[row=3] LegalOne-8B,https://huggingface.co/CSHaitao/LegalOne-8B,清华大学互联网司法研究院,三阶段全参训练，包含 100B 中期训练（PAS）、约 500k 条代理式 CoT 蒸馏 SFT（LEAD）和多阶段课程 RL。训练使用昇腾 Atlas 910B 与 MindSpore
-[row=4] qwen3_for_law,https://modelscope.cn/models/Kilimanjarant/qwen3_for_law,中国政法大学数据法学实验室,在 Qwen3-8B 上进行 LoRA SFT，随后合并权重
-[row=5] Qwen3-8B,,阿里云通义千问,通用预训练及支持思考、非思考两种模式的后训练

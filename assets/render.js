@@ -8,6 +8,7 @@
   var D = window.REPORT || {};
   var $ = function (id) { return document.getElementById(id); };
   var DELTA_KEYS = { deltaBase: 1, deltaRival: 1 };
+  var SVG_NS = "http://www.w3.org/2000/svg";
 
   /* ---------------- 基础工具 ---------------- */
   function el(tag, attrs, kids) {
@@ -26,8 +27,8 @@
     return n;
   }
 
-  function svg(tag, attrs, kids) {
-    var n = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  function svgEl(tag, attrs, kids) {
+    var n = document.createElementNS(SVG_NS, tag);
     if (attrs) for (var k in attrs) {
       if (k === "text") n.textContent = attrs[k];
       else if (attrs[k] !== null && attrs[k] !== undefined) n.setAttribute(k, attrs[k]);
@@ -36,11 +37,11 @@
     return n;
   }
 
-  function clear(id) { var n = $(id); while (n && n.firstChild) n.removeChild(n.firstChild); }
-
-  /* 原报告表头中的「V6」即 alpha_star_law_8B_v2 的内部版本名 */
-  function modelLabel(v) {
-    return (v === "V6") ? "alpha_star_law_8B_v2（V6）" : v;
+  /* 图标 */
+  function icon(id, cls) {
+    var s = svgEl("svg", { class: cls || "ic" });
+    s.appendChild(svgEl("use", { href: "#" + id }));
+    return s;
   }
 
   /* 数值：固定两位小数；缺失显示 — */
@@ -68,63 +69,81 @@
       .replace(/"/g, "&quot;");
   }
 
-  /* 多段文本 -> 多个 <p>（数据里以空行分段） */
-  function paras(text, cls) {
-    var out = [];
-    String(text || "").split("\n\n").forEach(function (t) {
-      t = t.trim();
-      if (!t) return;
-      out.push(el("p", { class: cls || null, html: esc(t) }));
-    });
-    return out;
-  }
-
   function fillParas(id, text, cls) {
     var host = $(id);
     if (!host) return;
     host.innerHTML = "";
-    paras(text, cls).forEach(function (p) { host.appendChild(p); });
+    String(text || "").split("\n\n").forEach(function (t) {
+      t = t.trim();
+      if (!t) return;
+      host.appendChild(el("p", { class: cls || null, html: esc(t) }));
+    });
   }
 
-  /* ---------------- 01 · Hero ---------------- */
-  (function () {
-    var box = $("hero-chips");
-    if (!box || !D.meta) return;
-    (D.meta.chips || []).forEach(function (c) {
-      box.appendChild(el("span", { class: "chip" }, [el("b", { text: c.k }), c.v]));
+  /* 富文本：内容本身可信（来自本地生成的数据文件），保留内嵌 <strong> 等标记 */
+  function fillHtml(id, text) {
+    var host = $(id);
+    if (!host) return;
+    host.innerHTML = "";
+    String(text || "").split("\n\n").forEach(function (t) {
+      t = t.trim();
+      if (!t) return;
+      host.appendChild(el("p", { html: t }));
     });
+  }
+
+  /* 原始表头中的内部版本名统一显示为产品名 */
+  function modelLabel(v) {
+    return (v === "V6") ? "alpha_star_law_8B_v2" : v;
+  }
+
+  /* ---------------- Hero ---------------- */
+  (function () {
+    var H = D.hero || {};
+    var tag = $("hero-tagline");
+    if (tag) tag.textContent = H.tagline || "";
+    var lead = $("hero-lead");
+    if (lead && H.lead) lead.innerHTML = H.lead;
+
+    var badges = $("hero-badges");
+    if (badges) {
+      (H.badges || []).forEach(function (b) {
+        badges.appendChild(el("li", {}, [icon(b.icon), el("span", { text: b.text })]));
+      });
+    }
   })();
 
+  /* ---------------- 冠军卡 ---------------- */
   (function () {
-    var box = $("score-rows");
-    if (!box || !D.benchmarks) return;
-    D.benchmarks.forEach(function (b) {
-      var self = (b.models || []).filter(function (m) { return m.self; })[0] || {};
-      var row = el("div", { class: "score-row" }, [
-        el("div", { class: "score-row-top" }, [
-          el("span", { class: "score-name", text: b.name }),
-          el("span", { class: "score-val", text: fmt(self.score) })
-        ])
-      ]);
-      var delta = el("div", { class: "score-delta" });
-      (b.deltas || []).forEach(function (d) {
-        delta.appendChild(el("span", {}, [
-          d.label + " ",
-          el("span", { class: d.up ? "up" : "", text: d.value })
+    var C = (D.hero || {}).champion;
+    if (!C) return;
+    var t = $("champion-title");
+    if (t) t.textContent = C.title || "";
+    var b = $("champion-badge");
+    if (b) b.textContent = C.badge || "";
+
+    var box = $("champion-rows");
+    if (box) {
+      (C.rows || []).forEach(function (r) {
+        var selfPct = Math.max(0, Math.min(100, r.value));
+        var basePct = Math.max(0, Math.min(100, r.base));
+        box.appendChild(el("div", { class: "champ-row" }, [
+          el("div", { class: "champ-row-top" }, [
+            el("span", { class: "champ-label", text: r.label }),
+            el("span", { class: "champ-val", text: fmt(r.value) })
+          ]),
+          el("div", { class: "champ-bar" }, [
+            el("div", { class: "champ-fill", style: "width:" + selfPct + "%" }),
+            el("div", { class: "champ-base", style: "left:" + basePct + "%" })
+          ]),
+          el("div", { class: "champ-row-foot", html: "较 Qwen3-8B 基座 <b>" + r.delta + "</b>" })
         ]));
       });
-      row.appendChild(delta);
-      box.appendChild(row);
-    });
+    }
+    fillHtml("champion-foot", C.foot);
   })();
 
-  /* ---------------- 01 · 结论与 KPI ---------------- */
-  (function () {
-    var box = $("conclusion-body");
-    if (!box) return;
-    (D.conclusion || []).forEach(function (p) { box.appendChild(el("p", { html: p })); });
-  })();
-
+  /* ---------------- KPI ---------------- */
   (function () {
     var box = $("kpi-grid");
     if (!box) return;
@@ -132,6 +151,7 @@
       var note = el("div", { class: "kpi-note" });
       if (k.note) note.innerHTML = k.note;
       box.appendChild(el("div", { class: "kpi" + (k.tone ? " is-" + k.tone : "") }, [
+        el("div", { class: "kpi-icon" }, [icon(k.icon)]),
         el("div", { class: "kpi-label", text: k.label }),
         el("div", { class: "kpi-value" }, [
           String(k.value),
@@ -142,108 +162,60 @@
     });
   })();
 
-  /* ---------------- 02 · 评测范围 ---------------- */
+  /* ---------------- 结论 ---------------- */
   (function () {
-    var tb = $("datasets-body");
-    if (!tb) return;
-    (D.datasets || []).forEach(function (r) {
-      tb.appendChild(el("tr", { class: r.name === "合计" ? "row-total" : "" }, [
-        el("td", { class: "name", text: r.name }),
-        el("td", { class: "num", text: r.tasks }),
-        el("td", { class: "num", text: r.questions }),
-        el("td", { text: r.scope || "—" })
-      ]));
-    });
-  })();
-
-  (function () {
-    var box = $("metrics-body");
+    var box = $("conclusion-body");
     if (!box) return;
-    (D.metrics || []).forEach(function (m) {
-      box.appendChild(el("div", { class: "metric-card" }, [
-        el("div", { class: "m-name", text: m.name }),
-        el("p", { class: "m-desc", text: m.desc })
-      ]));
+    (D.conclusion || []).forEach(function (p) { box.appendChild(el("p", { html: p })); });
+  })();
+
+  /* ---------------- 模型对比总表 ---------------- */
+  (function () {
+    var head = $("cmp-head");
+    var body = $("cmp-body");
+    if (!head || !body || !D.comparison) return;
+    var cols = D.comparison.columns || [];
+
+    cols.forEach(function (c, i) {
+      var th = el("th", { class: (i === 0 ? "" : "num") + (c.self ? " self-col" : "") });
+      th.appendChild(document.createTextNode(c.label));
+      if (c.self) th.appendChild(el("span", { class: "col-tag", text: "自研" }));
+      head.appendChild(th);
     });
-  })();
 
-  (function () {
-    var mode = $("inference-mode");
-    if (mode && D.inference) mode.textContent = D.inference.mode;
-
-    var chips = $("inference-params");
-    if (chips && D.inference) {
-      (D.inference.params || []).forEach(function (p) {
-        var i = p.indexOf("=");
-        if (i < 0) { chips.appendChild(el("span", { class: "param-chip" }, [el("span", { class: "pv", text: p })])); return; }
-        chips.appendChild(el("span", { class: "param-chip" }, [
-          el("span", { class: "pk", text: p.slice(0, i) }),
-          el("span", { class: "peq", text: "=" }),
-          el("span", { class: "pv", text: p.slice(i + 1) })
-        ]));
-      });
-    }
-
-    fillParas("inference-note", D.inferenceNote);
-  })();
-
-  /* ---------------- 03 · 模型与权重 ---------------- */
-  (function () {
-    var box = $("models-body");
-    if (!box) return;
-    var notes = {};
-    (D.modelNotes || []).forEach(function (n) { notes[n.model] = n.body; });
-
-    (D.models || []).forEach(function (m) {
-      var card = el("div", { class: "model-card" + (m.self ? " is-self" : "") }, [
-        el("div", { class: "model-head" }, [
-          el("span", { class: "model-name", text: m.name }),
-          el("span", { class: "tag " + (m.tagCls || "tag-plain"), text: m.role })
-        ]),
-        el("div", { class: "model-src", text: m.source }),
-        el("p", { class: "model-route", text: m.route || "" })
-      ]);
-
-      if (m.url) {
-        card.appendChild(el("div", { class: "model-link" }, [
-          el("span", { class: "link-label", text: "权重 / 模型页：" }),
-          el("a", { href: m.url, target: "_blank", rel: "noopener", text: m.url })
-        ]));
-      } else {
-        card.appendChild(el("div", { class: "model-link" }, [
-          el("span", { class: "link-label", text: "权重 / 模型页：" }),
-          el("span", { class: "link-none", text: "未公开" })
-        ]));
+    (D.comparison.rows || []).forEach(function (row) {
+      var vals = row.values || [];
+      var nums = vals.map(Number).filter(function (v) { return !isNaN(v); });
+      var best = null;
+      if (nums.length) {
+        best = row.lower ? Math.min.apply(null, nums) : Math.max.apply(null, nums);
       }
-
-      if (notes[m.name]) {
-        card.appendChild(el("p", { class: "model-note", text: notes[m.name] }));
-      }
-      box.appendChild(card);
-    });
-  })();
-
-  (function () {
-    var head = $("weights-head");
-    var body = $("weights-body");
-    if (!head || !body || !D.weights) return;
-    (D.weights.columns || []).forEach(function (c, i) {
-      head.appendChild(el("th", { class: i === 1 ? "col-self" : "", text: c }));
-    });
-    (D.weights.rows || []).forEach(function (row) {
       var tr = el("tr");
-      row.forEach(function (v, i) {
-        tr.appendChild(el("td", { class: i === 1 ? "col-self" : "", text: v === "" ? "—" : v }));
+      tr.appendChild(el("td", { text: row.item }));
+      vals.forEach(function (v, i) {
+        var isSelf = i === 0 && cols[i] && cols[i].self;
+        var td = el("td", { class: "num" + (isSelf ? " self-col" : "") });
+        var txt = fmt(v, row.dec) + (row.suffix && typeof v === "number" ? row.suffix : "");
+        td.textContent = txt;
+        if (best !== null && Number(v) === best) td.className += " is-best";
+        tr.appendChild(td);
       });
       body.appendChild(tr);
     });
+
+    var cap = $("cmp-cap");
+    if (cap && D.comparison.scale) {
+      cap.innerHTML = "主分＝剔除无效回答后的有效得分；全量分＝无效回答计 0 并保留在分母。" +
+        "评测覆盖 <strong>" + D.comparison.scale.tasks + "</strong> 项任务、<strong>" +
+        D.comparison.scale.questions + "</strong> 道题目。";
+    }
   })();
 
-  /* ---------------- 04 · 总分对比 ---------------- */
+  /* ---------------- 两榜总分 ---------------- */
   (function () {
     var box = $("benchmark-charts");
     if (!box) return;
-    D.benchmarks.forEach(function (b) {
+    (D.benchmarks || []).forEach(function (b) {
       var bars = el("div", { class: "bars" });
       (b.models || []).slice().sort(function (x, y) { return y.score - x.score; })
         .forEach(function (m, i) {
@@ -279,31 +251,36 @@
     var body = $("full-score-body");
     if (!head || !body || !D.fullScores) return;
     ["数据集", "alpha_star_law_8B_v2", "LegalOne-8B", "qwen3_for_law", "Qwen3-8B 基座"].forEach(function (c, i) {
-      head.appendChild(el("th", { class: i === 1 ? "num col-self" : (i === 0 ? "" : "num"), text: c }));
+      var th = el("th", { class: i === 0 ? "" : "num" });
+      th.appendChild(document.createTextNode(c));
+      if (i === 1) {
+        th.className += " self-col";
+        th.appendChild(el("span", { class: "col-tag", text: "自研" }));
+      }
+      head.appendChild(th);
     });
     D.fullScores.forEach(function (r) {
-      body.appendChild(el("tr", {}, [
-        el("td", { class: "name", text: r.dataset }),
-        el("td", { class: "num col-self", text: fmt(r.self) }),
-        el("td", { class: "num", text: fmt(r.rivalOne) }),
-        el("td", { class: "num", text: fmt(r.rivalTwo) }),
-        el("td", { class: "num", text: fmt(r.base) })
-      ]));
+      var tr = el("tr");
+      tr.appendChild(el("td", { text: r.dataset }));
+      [r.self, r.rivalOne, r.rivalTwo, r.base].forEach(function (v, i) {
+        tr.appendChild(el("td", { class: "num" + (i === 0 ? " self-col" : ""), text: fmt(v) }));
+      });
+      body.appendChild(tr);
     });
-    fillParas("full-score-note", D.fullScoreNote);
+    fillParas("full-score-cap", D.fullScoreCaption);
   })();
 
-  /* ---------------- 05 · 能力维度 ---------------- */
+  /* ---------------- 能力维度 ---------------- */
   (function () {
     var host = $("radar");
     if (!host) return;
     var dims = D.dimensions || [];
     if (dims.length < 3) return;
 
-    var W = 480, H = 400, cx = 240, cy = 200, R = 125;
+    var W = 480, H = 470, cx = 240, cy = 232, R = 150;
     var n = dims.length;
     var maxV = D.dimensionMax || 100;
-    var s = svg("svg", { class: "radar-svg", viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": "八维度雷达对比图" });
+    var s = svgEl("svg", { class: "radar-svg", viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": "八维度雷达对比图" });
 
     function pt(i, ratio) {
       var ang = -Math.PI / 2 + i * 2 * Math.PI / n;
@@ -318,34 +295,34 @@
     function clamp(v) { return Math.max(0, Math.min(1, (v || 0) / maxV)); }
 
     [0.25, 0.5, 0.75, 1].forEach(function (r) {
-      s.appendChild(svg("polygon", { class: "radar-grid", points: poly(function () { return r; }) }));
+      s.appendChild(svgEl("polygon", { class: "radar-grid", points: poly(function () { return r; }) }));
     });
     for (var i = 0; i < n; i++) {
       var p = pt(i, 1);
-      s.appendChild(svg("line", { class: "radar-axis", x1: cx, y1: cy, x2: p[0].toFixed(1), y2: p[1].toFixed(1) }));
+      s.appendChild(svgEl("line", { class: "radar-axis", x1: cx, y1: cy, x2: p[0].toFixed(1), y2: p[1].toFixed(1) }));
     }
 
     if (D.dimensionBase) {
-      s.appendChild(svg("polygon", { class: "radar-area-base", points: poly(function (d) { return clamp(d.base); }) }));
+      s.appendChild(svgEl("polygon", { class: "radar-area-base", points: poly(function (d) { return clamp(d.base); }) }));
     }
-    s.appendChild(svg("polygon", { class: "radar-area-self", points: poly(function (d) { return clamp(d.self); }) }));
+    s.appendChild(svgEl("polygon", { class: "radar-area-self", points: poly(function (d) { return clamp(d.self); }) }));
 
     dims.forEach(function (d, i) {
       var pSelf = pt(i, clamp(d.self));
-      s.appendChild(svg("circle", { class: "radar-dot-self", cx: pSelf[0].toFixed(1), cy: pSelf[1].toFixed(1), r: 3.4 }));
+      s.appendChild(svgEl("circle", { class: "radar-dot-self", cx: pSelf[0].toFixed(1), cy: pSelf[1].toFixed(1), r: 3.4 }));
       if (D.dimensionBase) {
         var pB = pt(i, clamp(d.base));
-        s.appendChild(svg("circle", { class: "radar-dot-base", cx: pB[0].toFixed(1), cy: pB[1].toFixed(1), r: 2.6 }));
+        s.appendChild(svgEl("circle", { class: "radar-dot-base", cx: pB[0].toFixed(1), cy: pB[1].toFixed(1), r: 2.6 }));
       }
 
-      var lp = pt(i, 1.28);
+      var lp = pt(i, 1.24);
       var anchor = Math.abs(lp[0] - cx) < 14 ? "middle" : (lp[0] > cx ? "start" : "end");
-      s.appendChild(svg("text", {
+      s.appendChild(svgEl("text", {
         class: "radar-axis-label",
         x: lp[0].toFixed(1), y: (lp[1] - 4).toFixed(1),
         "text-anchor": anchor, text: d.short || d.name
       }));
-      s.appendChild(svg("text", {
+      s.appendChild(svgEl("text", {
         class: "radar-axis-sub",
         x: lp[0].toFixed(1), y: (lp[1] + 10).toFixed(1),
         "text-anchor": anchor, text: (d.prefix || "") + " " + (d.code || "")
@@ -371,14 +348,14 @@
         el("td", { class: cls, text: fmtDelta(delta) })
       ]));
     });
-    fillParas("dimension-note", D.dimensionNote);
+    fillParas("dimension-cap", D.dimensionNote);
   })();
 
-  /* ---------------- 06 · 任务级明细 ---------------- */
+  /* ---------------- 任务级明细 ---------------- */
   (function () {
     var host = $("task-tables");
     if (!host) return;
-    (D.taskSets || []).forEach(function (set) {
+    (D.taskSets || []).forEach(function (set, si) {
       var tb = el("tbody");
       (set.rows || []).forEach(function (r) {
         var tr = el("tr");
@@ -408,19 +385,39 @@
         return el("th", { class: col.num ? "num" : "", text: col.label });
       }));
 
-      host.appendChild(el("div", { class: "task-block" }, [
+      var block = el("div", { class: "task-block" }, [
         el("div", { class: "task-title" }, [
           el("span", { text: set.title }),
           el("span", { class: "task-count", text: (set.rows || []).length + " 项" })
         ]),
         el("div", { class: "table-wrap" }, [el("table", {}, [el("thead", {}, [head]), tb])]),
         set.note ? el("p", { class: "task-note", text: set.note }) : null
-      ]));
+      ]);
+      if (si !== 0) block.setAttribute("hidden", "");
+      block.dataset.tab = String(si);
+      host.appendChild(block);
     });
-    fillParas("verify-note", D.verifyNote);
+
+    /* 标签页切换 */
+    var tabs = $("task-tabs");
+    if (tabs) {
+      tabs.addEventListener("click", function (e) {
+        var btn = e.target.closest ? e.target.closest(".tab") : null;
+        if (!btn) return;
+        var idx = btn.getAttribute("data-tab");
+        Array.prototype.forEach.call(tabs.querySelectorAll(".tab"), function (b) {
+          b.classList.toggle("is-active", b === btn);
+        });
+        Array.prototype.forEach.call(host.querySelectorAll(".task-block"), function (b) {
+          if (b.dataset.tab === idx) b.removeAttribute("hidden");
+          else b.setAttribute("hidden", "");
+        });
+      });
+    }
+    fillParas("verify-cap", D.verifyNote);
   })();
 
-  /* ---------------- 07 · 稳定性与典型错误 ---------------- */
+  /* ---------------- 工程表现 ---------------- */
   (function () {
     var tb = $("invalid-body");
     if (tb) {
@@ -433,7 +430,6 @@
         ]));
       });
     }
-    fillParas("invalid-note", D.invalidNote);
   })();
 
   (function () {
@@ -450,7 +446,6 @@
       });
       body.appendChild(tr);
     });
-    fillParas("length-note", D.lengthNote);
   })();
 
   function renderCase(titleId, headId, bodyId, data) {
@@ -473,47 +468,46 @@
   renderCase("err2-title", "err2-head", "err2-body", D.extractMisses);
   renderCase("err3-title", "err3-head", "err3-body", D.sentenceError);
 
-  /* ---------------- 08 · 亮点与短板 ---------------- */
-  function renderBullets(id, items, gap) {
-    var box = $(id);
-    if (!box) return;
-    (items || []).forEach(function (it) {
-      box.appendChild(el("div", { class: "bullet-item" + (gap ? " is-gap" : "") }, [
-        el("div", { class: "bullet-title", text: it.title }),
-        el("p", { class: "bullet-body", text: it.body })
-      ]));
-    });
-  }
-  renderBullets("strengths-body", D.strengths, false);
-  renderBullets("shortfalls-body", D.shortfalls, true);
-
-  /* ---------------- 09 · 说明与边界 ---------------- */
-  (function () {
-    var box = $("note-list");
-    if (!box) return;
-    (D.notes || []).forEach(function (n) {
-      var card = el("div", { class: "note-card" + (n.tone ? " is-" + n.tone : "") }, [
-        el("h3", { text: n.title })
-      ]);
-      (n.paras || []).forEach(function (p) { card.appendChild(el("p", { text: p })); });
-      box.appendChild(card);
-    });
-  })();
-
-  (function () {
-    var dl = $("meta-grid");
-    if (!dl) return;
-    (D.metaRows || []).forEach(function (r) {
-      dl.appendChild(el("dt", { text: r.k }));
-      dl.appendChild(el("dd", { html: r.v }));
-    });
-  })();
-
-  fillParas("callout", D.callout);
+  /* ---------------- 页脚 ---------------- */
   fillParas("footer-note", D.footerNote);
 
   (function () {
     var d = $("footer-date");
-    if (d && D.meta && D.meta.updated) d.textContent = "报告更新：" + D.meta.updated;
+    if (d && D.meta && D.meta.updated) d.textContent = "评测更新：" + D.meta.updated;
+  })();
+
+  /* ---------------- 浮动侧边导航：滚动高亮 ---------------- */
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll(".rail-nav a"));
+    if (!links.length) return;
+    var sections = links.map(function (a) {
+      return document.querySelector(a.getAttribute("href"));
+    }).filter(Boolean);
+    if (!sections.length) return;
+
+    function sync() {
+      var probe = window.scrollY + window.innerHeight * 0.32;
+      var idx = 0;
+      for (var i = 0; i < sections.length; i++) {
+        var top = sections[i].getBoundingClientRect().top + window.scrollY;
+        if (top <= probe) idx = i;
+      }
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) {
+        idx = sections.length - 1;
+      }
+      links.forEach(function (a, i) {
+        if (i === idx) a.classList.add("is-active");
+        else a.classList.remove("is-active");
+      });
+    }
+
+    var queued = false;
+    window.addEventListener("scroll", function () {
+      if (queued) return;
+      queued = true;
+      window.requestAnimationFrame(function () { queued = false; sync(); });
+    }, { passive: true });
+    window.addEventListener("resize", sync);
+    sync();
   })();
 })();
